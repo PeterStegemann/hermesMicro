@@ -11,4 +11,3 @@
 
 #define SIGNAL_LIMITS				2
 #define SIGNAL_TRIMS				4
-#define SIGNAL_INVERTS      3

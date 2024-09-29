@@ -5,6 +5,7 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 
+#include "Display_Service.h"
 #include "Input_Processor.h"
 #include "Interrupt_Service.h"
 #include "Output_Engine.h"
@@ -14,29 +15,29 @@
 #include "Setup_Service.h"
 #include "System.h"
 
-class hermesMicro
+class HermesMicro
 {
-	public:
-		Input_Processor InputProcessor;
-		Interrupt_Service InterruptService;
-		Output_Engine OutputEngine;
-		Setup_Service SetupService;
-		Signal_Processor SignalProcessor;
-		Status_Engine StatusEngine;
-		Store_Processor StoreProcessor;
+  private:
+    Display_Service displayService;
+		Input_Processor inputProcessor;
+		Interrupt_Service interruptService;
+		Output_Engine outputEngine;
+		Setup_Service setupService;
+		Signal_Processor signalProcessor;
+		Status_Engine statusEngine;
+		Store_Processor storeProcessor;
 
-	private:
 		void doLimit( void)
     {
       // Get input values.
       for( uint8_t Index = 0; Index < SIGNAL_LIMITS; Index++)
       {
-        int16_t RawValue = SignalProcessor.GetRawValue( Index);
+        int16_t RawValue = signalProcessor.GetRawValue( Index);
 
         // Check first two channels for current position. Set limit if off center.
-        int16_t CalculatedValue = SignalProcessor.GetCalibration( Index)->Calibrate( RawValue);
+        int16_t CalculatedValue = signalProcessor.GetCalibration( Index)->Calibrate( RawValue);
 
-        Signal_Trim* Trim = SignalProcessor.GetTrim( Index);
+        Signal_Trim* Trim = signalProcessor.GetTrim( Index);
 
         if( CalculatedValue > ( SIGNAL_MAXIMUM_VALUE * 0.65))
         {
@@ -55,29 +56,29 @@ class hermesMicro
 
 		void doCalibration( void)
     {
-      StatusEngine.SetLedState( Status_Engine::LEDS_BLINK_FAST);
-      StatusEngine.Beep();
+      statusEngine.SetLedState( Status_Engine::LED_BLINK_FAST);
+      statusEngine.Beep();
 
       // Wait for user to release button.
       bool CurrentButton;
 
       do
       {
-        InputProcessor.GetButton( INPUT_CALIBRATION_BUTTON, NULL, &CurrentButton);
+        inputProcessor.GetButton( INPUT_CALIBRATION_BUTTON, NULL, &CurrentButton);
       }
       while( CurrentButton == true);
 
       // Set center positions and prepare high and low.
       for( uint8_t CalibrationId = 0; CalibrationId < INPUT_ANALOG_PORTS; CalibrationId++)
       {
-        Signal_Calibration* Calibration = SignalProcessor.GetCalibration( CalibrationId);
+        Signal_Calibration* Calibration = signalProcessor.GetCalibration( CalibrationId);
 
         Calibration->Setup.High =
         Calibration->Setup.Center =
-        Calibration->Setup.Low = SignalProcessor.GetRawValue( CalibrationId);
+        Calibration->Setup.Low = signalProcessor.GetRawValue( CalibrationId);
       }
 
-      StatusEngine.SetLedState( Status_Engine::LEDS_ON);
+      statusEngine.SetLedState( Status_Engine::LED_ON);
 
       // Do until button gets pressed again.
       do
@@ -85,9 +86,9 @@ class hermesMicro
         // Set new high and low positions.
         for( uint8_t CalibrationId = 0; CalibrationId < INPUT_ANALOG_PORTS; CalibrationId++)
         {
-          Signal_Calibration* Calibration = SignalProcessor.GetCalibration( CalibrationId);
+          Signal_Calibration* Calibration = signalProcessor.GetCalibration( CalibrationId);
 
-          int16_t Current = SignalProcessor.GetRawValue( CalibrationId);
+          int16_t Current = signalProcessor.GetRawValue( CalibrationId);
 
           if( Current < Calibration->Setup.Low)
           {
@@ -99,87 +100,92 @@ class hermesMicro
           }
         }
 
-        InputProcessor.GetButton( INPUT_CALIBRATION_BUTTON, NULL, &CurrentButton);
+        inputProcessor.GetButton( INPUT_CALIBRATION_BUTTON, NULL, &CurrentButton);
       }
       while( CurrentButton != true);	
 
       // Store calibration.
       for( uint8_t CalibrationId = 0; CalibrationId < INPUT_ANALOG_PORTS; CalibrationId++)
       {
-        Signal_Calibration* Calibration = SignalProcessor.GetCalibration( CalibrationId);
+        Signal_Calibration* Calibration = signalProcessor.GetCalibration( CalibrationId);
 
-        SetupService.SetCalibration( CalibrationId, &( Calibration->Setup));
+        setupService.SetCalibration( CalibrationId, &( Calibration->Setup));
       }
 
       // Reset trims.
       for( uint8_t TrimId = 0; TrimId < SIGNAL_TRIMS; TrimId++)
       {
-        Signal_Trim* Trim = SignalProcessor.GetTrim( TrimId);
+        Signal_Trim* Trim = signalProcessor.GetTrim( TrimId);
 
         Trim->Reset();
 
-        SetupService.SetTrim( TrimId, &( Trim->Setup));
+        setupService.SetTrim( TrimId, &( Trim->Setup));
       }
 
-      StatusEngine.SetLedState( Status_Engine::LEDS_OFF);
+      statusEngine.SetLedState( Status_Engine::LED_OFF);
     }
 
 		void limit( bool Limit)
     {
-      StatusEngine.Beep();
+      statusEngine.Beep();
 
       if( Limit == true)
       {
-        StatusEngine.SetLedState( Status_Engine::LEDS_BLINK_SUPER_FAST);
+        statusEngine.SetLedState( Status_Engine::LED_BLINK_SUPER_FAST);
       }
       else
       {
-        StatusEngine.SetLedState( Status_Engine::LEDS_BLINK_FAST);
+        statusEngine.SetLedState( Status_Engine::LED_BLINK_FAST);
       }
 
       Utility::Pause( 250);
-      StatusEngine.SetLedState( Status_Engine::LEDS_OFF);
+      statusEngine.SetLedState( Status_Engine::LED_OFF);
       Utility::Pause( 250);
     }
 
 	public:
-		hermesMicro( void)
-      : InterruptService( &InputProcessor, &SignalProcessor, &StatusEngine, &StoreProcessor)
-      , OutputEngine( &SetupService)
-      , SignalProcessor( &InputProcessor, &OutputEngine, &SetupService, &StatusEngine)
-      , StoreProcessor( &SignalProcessor)
+		HermesMicro( void)
+      : interruptService( &inputProcessor, &signalProcessor, &statusEngine, &storeProcessor)
+      , outputEngine( &setupService)
+      , signalProcessor( &inputProcessor, &outputEngine, &setupService, &statusEngine)
+      , storeProcessor( &signalProcessor)
     {
     }
 
 		// Go.
 		void Run( void)
     {
+              Utility::Pause( 500);
+
+      // Initialize display.
+      displayService.Initialize();
+/*
       // Initialize input.
-      InputProcessor.Initialize();
-      InputProcessor.Process();
+      inputProcessor.Initialize();
+      inputProcessor.Process();
 
       // Check bind button.
       bool BindMode;
 
-      InputProcessor.GetButton( INPUT_BIND_BUTTON, NULL, &BindMode);
+      inputProcessor.GetButton( INPUT_BIND_BUTTON, NULL, &BindMode);
 
       // Start status.
-      StatusEngine.Initialize();
-      StatusEngine.SetLedState( Status_Engine::LEDS_ON);
-
+      statusEngine.Initialize();
+      statusEngine.SetLedState( Status_Engine::LED_ON);
+*/
       // Enable interrupts.
       sei();
-
+/*
       // Run output engine.
-      OutputEngine.Start( BindMode);
+      outputEngine.Start( BindMode);
 
       // Initialize processing.
-      SignalProcessor.Initialize();
+      signalProcessor.Initialize();
 
       // Run interrupt service.
-      InterruptService.Start();
+      interruptService.Start();
 
-      StatusEngine.LongBeep();
+      statusEngine.LongBeep();
 
       // Wait a moment to get all services going. That's especially important for input, as we want to
       // ask for a button soon.
@@ -188,7 +194,7 @@ class hermesMicro
       // Check button turn on state.
       bool CurrentButton;
 
-      InputProcessor.GetButton( INPUT_CALIBRATION_BUTTON, NULL, &CurrentButton);
+      inputProcessor.GetButton( INPUT_CALIBRATION_BUTTON, NULL, &CurrentButton);
 
       if( CurrentButton == true)
       {
@@ -197,43 +203,45 @@ class hermesMicro
 
       doLimit();
 
-      StatusEngine.SetLedState( Status_Engine::LEDS_BLINK);
-
+      statusEngine.SetLedState( Status_Engine::LED_BLINK);
+*/
       // Loop forever.
       while( true)
       {
+        displayService.Draw();
         /*
-        int16_t RawValue = SignalProcessor.GetRawValue( 0);
+        int16_t RawValue = signalProcessor.GetRawValue( 0);
 
-        int16_t CalculatedValue = SignalProcessor.GetCalibration( 0)->Calibrate( RawValue);
+        int16_t CalculatedValue = signalProcessor.GetCalibration( 0)->Calibrate( RawValue);
 
         if( CalculatedValue > ( SIGNAL_MAXIMUM_VALUE * 0.65))
         {
-          StatusEngine.SetLedState( Status_Engine::LEDS_BLINK_SUPER_FAST);
+          statusEngine.SetLedState( Status_Engine::LED_BLINK_SUPER_FAST);
         }
         else if( CalculatedValue < ( SIGNAL_MINIMUM_VALUE * 0.65))
         {
-          StatusEngine.SetLedState( Status_Engine::LEDS_BLINK_FAST);
+          statusEngine.SetLedState( Status_Engine::LED_BLINK_FAST);
         }
         else
         {
-          StatusEngine.SetLedState( Status_Engine::LEDS_OFF);
+          statusEngine.SetLedState( Status_Engine::LED_OFF);
         }
+        */
 
         Utility::Pause( 500);
-        */
       }
     }
 };
 
-static hermesMicro HermesMicro;
+static HermesMicro hermesMicro;
 
 int main( void)
 {
 	// Disable watchdog.
 	wdt_disable();
 
-	HermesMicro.Run();
+	hermesMicro.Run();
 
 	return( 0);
 }
+

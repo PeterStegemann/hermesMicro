@@ -119,7 +119,7 @@ class Signal_Processor
         {
           CalculatedValue = trim[ Index].Trim( CalculatedValue);
         }
-
+/*
         // Invert the lowest 3 channels if needed.
         if( Index < SIGNAL_INVERTS)
         {
@@ -132,7 +132,7 @@ class Signal_Processor
             CalculatedValue = -CalculatedValue;
           }
         }
-
+*/
         outputEngine->SetChannel( Index, CalculatedValue);
       }
 

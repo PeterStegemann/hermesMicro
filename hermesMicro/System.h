@@ -6,6 +6,8 @@
 //#define OUTPUT_SPEKTRUM
 #define OUTPUT_PPM
 
+//#define HAS_STATUS_LED
+
 #if( defined OUTPUT_SPEKTRUM && defined OUTPUT_PPM)
   #error "Only one of OUTPUT_SPEKTRUM or OUTPUT_PPM may be used"
 #endif

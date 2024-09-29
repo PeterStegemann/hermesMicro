@@ -19,19 +19,21 @@
 #define STATUS_BEEP_LENGTH          20
 #define STATUS_TICK_LENGTH          2
 
-#define STATUS_LED_OFF( LED)        BIT_CLEAR( STATUS_PORT, LED);
-#define STATUS_LED_ON( LED)         BIT_SET( STATUS_PORT, LED);
+#if defined( HAS_STATUS_LED)
+  #define STATUS_LED_OFF( LED)        BIT_CLEAR( STATUS_PORT, LED);
+  #define STATUS_LED_ON( LED)         BIT_SET( STATUS_PORT, LED);
+#endif
 
 class Status_Engine
 {
 	public:
 		enum LEDState
 		{
-			LEDS_OFF,
-			LEDS_BLINK,
-			LEDS_BLINK_FAST,
-			LEDS_BLINK_SUPER_FAST,
-			LEDS_ON
+			LED_OFF,
+			LED_BLINK,
+			LED_BLINK_FAST,
+			LED_BLINK_SUPER_FAST,
+			LED_ON
 		};
 
 	private:
@@ -43,7 +45,7 @@ class Status_Engine
 
 	public:
 		Status_Engine( void)
-      : ledState( LEDS_OFF)
+      : ledState( LED_OFF)
       , ledBlinkCount( 0)
       , beepCount( 0)
     {
@@ -52,8 +54,10 @@ class Status_Engine
 		// Initialize status engine.
     void Initialize( void)
     {
-      BIT_SET( STATUS_DDR, STATUS_LED);
-      STATUS_LED_OFF( STATUS_LED);
+      #if defined( HAS_STATUS_LED)
+        BIT_SET( STATUS_DDR, STATUS_LED);
+        STATUS_LED_OFF( STATUS_LED);
+      #endif
 
       BIT_SET( BUZZER_DDR, BUZZER_NOISE);
       BIT_CLEAR( BUZZER_PORT, BUZZER_NOISE);
@@ -62,72 +66,74 @@ class Status_Engine
 		// This is for the interrupt, not for you.
 		void Process( void)
     {
-      // Set status LED.
-      switch( ledState)
-      {
-        case LEDS_OFF :
+      #if defined( HAS_STATUS_LED)
+        // Set status LED.
+        switch( ledState)
         {
-          STATUS_LED_OFF( STATUS_LED);
-        }
-        break;
-
-        case LEDS_BLINK :
-        {
-          ledBlinkCount++;
-
-          if( ledBlinkCount == STATUS_BLINK_OFF)
+          case LED_OFF :
           {
             STATUS_LED_OFF( STATUS_LED);
           }
-          else if( ledBlinkCount == STATUS_BLINK_ON)
+          break;
+
+          case LED_BLINK :
+          {
+            ledBlinkCount++;
+
+            if( ledBlinkCount == STATUS_BLINK_OFF)
+            {
+              STATUS_LED_OFF( STATUS_LED);
+            }
+            else if( ledBlinkCount == STATUS_BLINK_ON)
+            {
+              STATUS_LED_ON( STATUS_LED);
+
+              ledBlinkCount = 0;
+            }
+          }
+          break;
+
+          case LED_BLINK_FAST :
+          {
+            ledBlinkCount++;
+
+            if( ledBlinkCount == STATUS_BLINK_OFF_FAST)
+            {
+              STATUS_LED_OFF( STATUS_LED);
+            }
+            else if( ledBlinkCount == STATUS_BLINK_ON_FAST)
+            {
+              STATUS_LED_ON( STATUS_LED);
+
+              ledBlinkCount = 0;
+            }
+          }
+          break;
+
+          case LED_BLINK_SUPER_FAST :
+          {
+            ledBlinkCount++;
+
+            if( ledBlinkCount == STATUS_BLINK_OFF_SUPER_FAST)
+            {
+              STATUS_LED_OFF( STATUS_LED);
+            }
+            else if( ledBlinkCount == STATUS_BLINK_ON_SUPER_FAST)
+            {
+              STATUS_LED_ON( STATUS_LED);
+
+              ledBlinkCount = 0;
+            }
+          }
+          break;
+
+          case LED_ON :
           {
             STATUS_LED_ON( STATUS_LED);
-
-            ledBlinkCount = 0;
           }
+          break;
         }
-        break;
-
-        case LEDS_BLINK_FAST :
-        {
-          ledBlinkCount++;
-
-          if( ledBlinkCount == STATUS_BLINK_OFF_FAST)
-          {
-            STATUS_LED_OFF( STATUS_LED);
-          }
-          else if( ledBlinkCount == STATUS_BLINK_ON_FAST)
-          {
-            STATUS_LED_ON( STATUS_LED);
-
-            ledBlinkCount = 0;
-          }
-        }
-        break;
-
-        case LEDS_BLINK_SUPER_FAST :
-        {
-          ledBlinkCount++;
-
-          if( ledBlinkCount == STATUS_BLINK_OFF_SUPER_FAST)
-          {
-            STATUS_LED_OFF( STATUS_LED);
-          }
-          else if( ledBlinkCount == STATUS_BLINK_ON_SUPER_FAST)
-          {
-            STATUS_LED_ON( STATUS_LED);
-
-            ledBlinkCount = 0;
-          }
-        }
-        break;
-
-        case LEDS_ON :
-        {
-          STATUS_LED_ON( STATUS_LED);
-        }
-        break;
-      }
+      #endif
 
       // Count down beep.
       if( beepCount > 0)

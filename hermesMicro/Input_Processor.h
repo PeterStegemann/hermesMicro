@@ -39,11 +39,6 @@ class Input_Processor
       INPUT_TRIM_DDR |= INPUT_BUTTON_OUTPUT_PINS;
       // Default on.
       INPUT_TRIM_PORT |= INPUT_BUTTON_OUTPUT_PINS;
-
-      // Input.
-      INPUT_INVERT_DDR &= ~INPUT_SWITCH_PINS;
-      // Pullups.
-      INPUT_INVERT_PORT |= INPUT_SWITCH_PINS;
     }
 
 		// This is for the interrupt, not for you.
@@ -80,16 +75,6 @@ class Input_Processor
 
         // Pull up.
         BIT_SET( INPUT_TRIM_PORT, OutputId);
-      }
-
-      // Go trough invert switches.
-      uint8_t SwitchId = 0;
-
-      for( uint8_t InputId = INPUT_INVERT_ANALOG_A; InputId <= INPUT_INVERT_ANALOG_C; InputId++)
-      {
-        switchCurrent[ SwitchId] = ( BIT_CHECK( INPUT_INVERT_PIN, InputId) == false);
-
-        SwitchId++;
       }
     }
 

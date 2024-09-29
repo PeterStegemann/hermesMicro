@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "System.h"
+
 #include <avr/io.h>
 
 // Input misc
@@ -27,13 +29,10 @@
 #define INPUT_TRIM_INPUT_2          PD6
 #define INPUT_TRIM_INPUT_3          PD7
 
-#define INPUT_INVERT_PORT           PORTB
-#define INPUT_INVERT_DDR            DDRB
-#define INPUT_INVERT_PIN            PINB
-
-#define INPUT_INVERT_ANALOG_A       PB2
-#define INPUT_INVERT_ANALOG_B       PB3
-#define INPUT_INVERT_ANALOG_C       PB4
+// Display
+#define DISPLAY_PORT                PORTB
+#define DISPLAY_SCK                 PB5
+#define DISPLAY_MOSI                PB3
 
 // Serial communication
 #define SERIAL_PORT                 PORTD
@@ -52,10 +51,12 @@
 #define PPM_SIGNAL                  PB1
 
 // Status
-#define STATUS_PORT                 PORTB
-#define STATUS_DDR                  DDRB
+#if defined( HAS_STATUS_LED)
+  #define STATUS_PORT               PORTB
+  #define STATUS_DDR                DDRB
 
-#define STATUS_LED                  PB5
+  #define STATUS_LED                PB5
+#endif
 
 // Beep
 #define BUZZER_PORT                 PORTB

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Input_Processor.h"
+#include "Input_Service.h"
 #include "Signal_Processor.h"
 #include "Status_Engine.h"
 #include "Store_Processor.h"
@@ -19,7 +19,7 @@ extern class Interrupt_Service* Interrupt_Singleton;
 class Interrupt_Service
 {
 	private:
-    Input_Processor* inputProcessor;
+    Input_Service* inputService;
     Signal_Processor* signalProcessor;
     Status_Engine* statusEngine;
     Store_Processor* storeProcessor;
@@ -30,12 +30,12 @@ class Interrupt_Service
 	public:
     Interrupt_Service
     (
-      Input_Processor* InputProcessor,
+      Input_Service* InputService,
       Signal_Processor* SignalProcessor,
       Status_Engine* StatusEngine,
       Store_Processor* StoreProcessor
     )
-      : inputProcessor( InputProcessor)
+      : inputService( InputService)
       , signalProcessor( SignalProcessor)
       , statusEngine( StatusEngine)
       , storeProcessor( StoreProcessor)
@@ -86,9 +86,8 @@ class Interrupt_Service
       }
 
       statusEngine->Process();
-      inputProcessor->Process();
+      inputService->Process();
       //	signalProcessor.Process();
-      storeProcessor->Process();
     }
 };
 

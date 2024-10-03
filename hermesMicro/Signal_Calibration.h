@@ -11,7 +11,7 @@ class Signal_Calibration
 		Setup_Calibration Setup;
 
 	public:
-		SIGNAL_Calibration( void)
+		Signal_Calibration( void)
     {
       Setup.High = 0;
       Setup.Center = 0;

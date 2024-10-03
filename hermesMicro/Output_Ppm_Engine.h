@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Ports.h"
 #include "Setup_Service.h"
 #include "Signal.h"
+#include "System_Ports.h"
 #include "Types.h"
 #include "Utility.h"
 
@@ -219,7 +219,7 @@ class Output_Ppm_Engine
       // Wait for the interrupt routine to be ready with fetching the last data set.
       while( ReadyForData() == false)
       {
-        _delay_ms( 1);
+        Utility::Pause( 1);
       }
 
       channels[ ChannelId] = SignalValue;

@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "Input_Processor.h"
+#include "Input_Service.h"
 #include "Output_Engine.h"
-#include "Ports.h"
 #include "Setup_Service.h"
 #include "Signal_Defines.h"
 #include "Signal_Calibration.h"
 #include "Signal_Trim.h"
+#include "System_Ports.h"
 #include "Utility.h"
 
 #define SIGNAL_PROCESSOR_CALCULATIONS_PER_SECOND		45
@@ -16,7 +16,7 @@
 class Signal_Processor
 {
 	private:
-    Input_Processor* inputProcessor;
+    Input_Service* inputService;
     Output_Engine* outputEngine;
     Setup_Service* setupService;
 
@@ -30,25 +30,25 @@ class Signal_Processor
 		// Calibration engines.
 		Signal_Calibration calibration[ INPUT_ANALOG_PORTS];
 
-		// Calibration engines.
+		// Trim engines.
 		Signal_Trim trim[ SIGNAL_TRIMS];
 
 	public:
     Signal_Processor
     (
-      Input_Processor* InputProcessor,
+      Input_Service* InputService,
       Output_Engine* OutputEngine,
       Setup_Service* SetupService,
       Status_Engine* StatusEngine
     )
-      : inputProcessor( InputProcessor)
+      : inputService( InputService)
       , outputEngine( OutputEngine)
       , setupService( SetupService)
       , inProcessing( false)
     {
       for( uint8_t TrimId = 0; TrimId < SIGNAL_TRIMS; TrimId++)
       {
-        trim[ TrimId].Initialize( InputProcessor, SetupService, StatusEngine);
+        trim[ TrimId].Initialize( InputService, SetupService, StatusEngine);
       }
     }
 

@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include "Input_Defines.h"
-#include "Ports.h"
 #include "Setup.h"
 #include "Setup_Calibration.h"
 #include "Setup_Trim.h"
 #include "Signal_Defines.h"
 #include "Signal_Trim_Defines.h"
+#include "System_Ports.h"
 
 #include <avr/eeprom.h>
 

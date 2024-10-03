@@ -192,7 +192,7 @@ class Output_Spektrum_Engine
       // Wait for the interrupt routine to be ready with fetching the last data set.
       while( ReadyForData() == false)
       {
-        _delay_ms( 1);
+        Utility::Pause( 1);
       }
 
       channels[ ChannelId].Data[ 0] = ( ChannelId << 2) + (( SignalValue & 0x0300) >> 8);

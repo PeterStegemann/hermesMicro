@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Input_Processor.h"
+#include "Input_Service.h"
 #include "Setup_Service.h"
 #include "Setup_Trim.h"
 #include "Status_Engine.h"
@@ -11,7 +11,7 @@
 class Signal_Trim
 {
 	private:
-    Input_Processor* inputProcessor;
+    Input_Service* inputService;
 		Setup_Service* setupService;
 		Status_Engine* statusEngine;
 
@@ -23,9 +23,9 @@ class Signal_Trim
 		Setup_Trim Setup;
 
 	public:
-		Initialize( Input_Processor* InputProcessor, Setup_Service* SetupService, Status_Engine* StatusEngine)
+		Initialize( Input_Service* InputService, Setup_Service* SetupService, Status_Engine* StatusEngine)
     {
-      inputProcessor = InputProcessor;
+      inputService = InputService;
       setupService = SetupService;
       statusEngine = StatusEngine;
 
@@ -50,8 +50,8 @@ class Signal_Trim
 
       uint8_t DownCycles, UpCycles;
 
-      inputProcessor->GetButton( Id * 2, &DownCycles);
-      inputProcessor->GetButton( Id * 2 + 1, &UpCycles);
+      inputService->GetButton( Id * 2, &DownCycles);
+      inputService->GetButton( Id * 2 + 1, &UpCycles);
 
       int8_t Steps = UpCycles - DownCycles;
 

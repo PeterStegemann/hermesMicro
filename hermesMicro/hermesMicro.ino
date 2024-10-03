@@ -6,20 +6,23 @@
 #include <avr/wdt.h>
 
 #include "Display_Service.h"
-#include "Input_Processor.h"
+#include "Input_Service.h"
 #include "Interrupt_Service.h"
 #include "Output_Engine.h"
+#include "Setup_Service.h"
+#include "Screen_Debug.h"
+#include "Screen_Menu.h"
+#include "Screen_Status.h"
 #include "Signal_Processor.h"
 #include "Status_Engine.h"
 #include "Store_Processor.h"
-#include "Setup_Service.h"
 #include "System.h"
 
 class HermesMicro
 {
   private:
     Display_Service displayService;
-		Input_Processor inputProcessor;
+		Input_Service inputService;
 		Interrupt_Service interruptService;
 		Output_Engine outputEngine;
 		Setup_Service setupService;
@@ -27,6 +30,24 @@ class HermesMicro
 		Status_Engine statusEngine;
 		Store_Processor storeProcessor;
 
+    void doDebug( void)
+    {
+        Screen_Debug ScreenDebug( &displayService, &inputService, &storeProcessor);
+        ScreenDebug.Run();
+    }
+
+    void doMenu( void)
+    {
+        Screen_Menu ScreenMenu( &displayService, &inputService, &storeProcessor);
+        ScreenMenu.Run();
+    }
+
+    void doStatus( void)
+    {
+        Screen_Status ScreenStatus( &displayService, &inputService, &storeProcessor);
+        ScreenStatus.Run();
+    }
+/*
 		void doLimit( void)
     {
       // Get input values.
@@ -142,12 +163,12 @@ class HermesMicro
       statusEngine.SetLedState( Status_Engine::LED_OFF);
       Utility::Pause( 250);
     }
-
+*/
 	public:
 		HermesMicro( void)
-      : interruptService( &inputProcessor, &signalProcessor, &statusEngine, &storeProcessor)
+      : interruptService( &inputService, &signalProcessor, &statusEngine, &storeProcessor)
       , outputEngine( &setupService)
-      , signalProcessor( &inputProcessor, &outputEngine, &setupService, &statusEngine)
+      , signalProcessor( &inputService, &outputEngine, &setupService, &statusEngine)
       , storeProcessor( &signalProcessor)
     {
     }
@@ -155,27 +176,26 @@ class HermesMicro
 		// Go.
 		void Run( void)
     {
-              Utility::Pause( 500);
-
       // Initialize display.
       displayService.Initialize();
-/*
+
       // Initialize input.
-      inputProcessor.Initialize();
-      inputProcessor.Process();
+      inputService.Initialize();
+      inputService.Process();
 
       // Check bind button.
-      bool BindMode;
+      bool BindMode = false;
+/*
 
       inputProcessor.GetButton( INPUT_BIND_BUTTON, NULL, &BindMode);
-
+*/
       // Start status.
       statusEngine.Initialize();
       statusEngine.SetLedState( Status_Engine::LED_ON);
-*/
+
       // Enable interrupts.
       sei();
-/*
+
       // Run output engine.
       outputEngine.Start( BindMode);
 
@@ -184,7 +204,7 @@ class HermesMicro
 
       // Run interrupt service.
       interruptService.Start();
-
+/*
       statusEngine.LongBeep();
 
       // Wait a moment to get all services going. That's especially important for input, as we want to
@@ -208,7 +228,10 @@ class HermesMicro
       // Loop forever.
       while( true)
       {
-        displayService.Draw();
+        doDebug();
+//        doStatus();
+//        doMenu();
+
         /*
         int16_t RawValue = signalProcessor.GetRawValue( 0);
 
@@ -227,8 +250,6 @@ class HermesMicro
           statusEngine.SetLedState( Status_Engine::LED_OFF);
         }
         */
-
-        Utility::Pause( 500);
       }
     }
 };

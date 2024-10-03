@@ -19,9 +19,9 @@ class Store_Processor
 	public:
 		// Initialize processing.
 	  Store_Processor( Signal_Processor* SignalProcessor)
+      : signalProcessor( SignalProcessor)
+      , inProcessing( false)
     {
-      signalProcessor = SignalProcessor;
-      inProcessing = false;
     }
 
 		// This is for the interrupt, not for you.

@@ -2,81 +2,83 @@
 
 #pragma once
 
-#include "System_Ports.h"
-
 #include "Types.h"
 
 // 00 10 11 01 (0 2 3 1) clockwise
 // 00 01 11 10 (0 1 3 2) anticlockwise
-static const int8_t RotaryTable[] =
-{
-	// 1111 1110 1101 1100
-	//   00   01   10   11
-	      0,  +1,  -1,   0,
-	// 1011 1010 1001 1000
-	//   01   11   11   10
-	     -1,   0,   0,  +1,
-	// 0111 0110 0101 0100
-	//   10   11   00   01
-	     +1,   0,   0,  -1,
-	// 0011 0010 0001 0000
-	//   11   10   01   00
-	      0,  -1,  +1,   0
-};
+
+// 1111 1110 1101 1100
+//    0,  +1,  -1,   0,
+// 1011 1010 1001 1000
+//    0,   0,   0,   0,
+// 0111 0110 0101 0100
+//    0,   0,   0,   0,
+// 0011 0010 0001 0000
+//    0,  -1,  +1,   0
 
 class Input_Rotary
 {
   private:
-    int8_t rotarySubValue;
-	  uint8_t lastRotarySelect;
-	  uint8_t triggerValue;
+    int8_t subSteps;
+	  uint8_t lastBits;
 
   public:
-  	// Pass in the idle values of the rotary here.
-	  void Initialize( bool InputA, bool InputB)
+	  Input_Rotary( void)
+    	: subSteps( 0)
+	    , lastBits( 0)
 	  {
-    	rotarySubValue = 0;
-	    lastRotarySelect = 0;
-
-    	// We're trying to get the opposite of the idle position by inverting the values we get.
-	    triggerValue = 0;
-
-    	if( InputA == false)	triggerValue |= 0x01;
-	    if( InputB == false)	triggerValue |= 0x02;
     }
 
     int8_t CalculateDifference( bool InputA, bool InputB)
     {
-    	int8_t Result = 0;
-
     	// Rotary select
-	    uint8_t NewRotarySelect = 0;
+	    uint8_t NewBits = InputB << 1 | InputA;
 
-	    if( InputA == true)	NewRotarySelect |= 0x01;
-    	if( InputB == true)	NewRotarySelect |= 0x02;
+      if( NewBits == lastBits)
+      {
+        return( 0);
+      }
 
-    	if( NewRotarySelect != lastRotarySelect)
-	    {
-    		int8_t Step = RotaryTable[( lastRotarySelect << 2) | NewRotarySelect];
-    		rotarySubValue += Step;
+      uint8_t State = ( lastBits << 2) | NewBits;
 
-    		if( NewRotarySelect == triggerValue)
-	    	{
-	    		if( rotarySubValue > 0)
-		    	{
-				    Result++;
-			    }
-    			else if( rotarySubValue < 0)
-	    		{
-    				Result--;
-	    		}
+      lastBits = NewBits;
 
-    			rotarySubValue = 0;
-	    	}
+      // Step on every second step, 90 degree before and after the resting position.
+      if(( State == 0b0010) || ( State == 0b1101))
+      {
+        subSteps--;
+      }
+      else if(( State == 0b0001) || ( State == 0b1110))
+      {
+        subSteps++;
+      }
+      // Reset a glitched rotary encoder decoder in the resting position.
+      else if( NewBits == 0b11)
+      {
+        subSteps = 0;
+      }
 
-    		lastRotarySelect = NewRotarySelect;
-	    }
+      // Two sub steps make one step.
+      if( subSteps >= 2)
+      {
+        subSteps = 0;
 
-    	return( Result);
+        return( 1);
+      }
+      else if( subSteps <= -2)
+      {
+        subSteps = 0;
+ 
+        return( -1);
+      }
+      else
+      {
+        return( 0);
+      }
+    }
+
+    int8_t GetSubSteps( void)
+    {
+      return( subSteps);
     }
 };

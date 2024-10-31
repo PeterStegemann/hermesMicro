@@ -131,7 +131,7 @@ class Output_Spektrum_Engine
 
         copyChannels();
 
-        BIT_CLEAR( UCSR0B, UDRIE0);
+        Utility_ClearBit( UCSR0B, UDRIE0);
       }
     }
 
@@ -204,7 +204,7 @@ class Output_Spektrum_Engine
     {
       channelsValid = true;
 
-      BIT_SET( UCSR0B, UDRIE0);
+      Utility_SetBit( UCSR0B, UDRIE0);
     }
 
 		// Returns false when engine hasn't processed the last dataset yet. In that case, calls to

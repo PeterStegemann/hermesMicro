@@ -32,19 +32,19 @@ class HermesMicro
 
     void doDebug( void)
     {
-        Screen_Debug ScreenDebug( &displayService, &inputService, &storeProcessor);
+        Screen_Debug ScreenDebug( &displayService, &inputService, &interruptService, &storeProcessor);
         ScreenDebug.Run();
     }
 
     void doMenu( void)
     {
-        Screen_Menu ScreenMenu( &displayService, &inputService, &storeProcessor);
+        Screen_Menu ScreenMenu( &displayService, &inputService, &interruptService, &storeProcessor);
         ScreenMenu.Run();
     }
 
     void doStatus( void)
     {
-        Screen_Status ScreenStatus( &displayService, &inputService, &storeProcessor);
+        Screen_Status ScreenStatus( &displayService, &inputService, &interruptService, &storeProcessor);
         ScreenStatus.Run();
     }
 /*

@@ -11,10 +11,10 @@
 #include <stdlib.h> 
 #include <string.h>
 
-#define BIT_VALUE( Bit)             ( _BV( Bit))
-#define BIT_SET( Value, Bit)        ( Value |= BIT_VALUE( Bit))
-#define BIT_CLEAR( Value, Bit)      ( Value &= ~BIT_VALUE( Bit))
-#define BIT_CHECK( Value, Bit)      ( Value & BIT_VALUE( Bit))
+#define Utility_BitValue( Bit)				  ( 1 << ( Bit))
+#define Utility_SetBit( Value, Bit)			(( Value) |= Utility_BitValue( Bit))
+#define Utility_ClearBit( Value, Bit)		(( Value) &= ~Utility_BitValue( Bit))
+#define Utility_GetBit( Value, Bit)			(( Value) & Utility_BitValue( Bit))
 
 #define NUMBER_MAX( A, B)           ((( A) >= ( B)) ? ( A) : ( B))
 #define NUMBER_MIN( A, B)           ((( A) <= ( B)) ? ( A) : ( B))

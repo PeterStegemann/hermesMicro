@@ -7,10 +7,7 @@
 #include <avr/io.h>
 
 // Input misc
-#define INPUT_TIMERA                TCCR0A
-#define INPUT_TIMERB                TCCR0B
-
-#define INPUT_ANALOG_PORTS          6
+#define INPUT_ANALOG_PORTS          5
 
 #define INPUT_ANALOG_PORT           PORTC
 #define INPUT_ANALOG_DDR            DDRC
@@ -20,8 +17,7 @@
 #define INPUT_ANALOG_B              PC1
 #define INPUT_ANALOG_C              PC2
 #define INPUT_ANALOG_D              PC3
-#define INPUT_ANALOG_E              PC4
-#define INPUT_ANALOG_F              PC5
+#define INPUT_ANALOG_E              PC6
 
 #define INPUT_DIGITAL_PORTS         8
 
@@ -38,18 +34,18 @@
 #define INPUT_DIGITAL_G             PD6
 #define INPUT_DIGITAL_H             PD7
 
-// Display
-#define DISPLAY_PORT                PORTB
-#define DISPLAY_SCK                 PB5
-#define DISPLAY_MOSI                PB3
-
 // Menu
-#define MENU_ROTARY_PORT            PORTC
-#define MENU_ROTARY_A               PC6
-#define MENU_ROTARY_B               PC7
+#define MENU_ROTARY_PORT            PORTB
+#define MENU_ROTARY_DDR             DDRB
+#define MENU_ROTARY_PIN             PINB
+#define MENU_ROTARY_A               PB2
+#define MENU_ROTARY_B               PB3
+#define MENU_ROTARY_BUTTON          PB4
 
-#define MENU_BUTTON_PORT            PORTB
-#define MENU_BUTTON                 PB2
+// Display
+#define DISPLAY_PORT                PORTC
+#define DISPLAY_SDA                 PC4
+#define DISPLAY_SCL                 PC5
 
 // Serial communication
 #define SERIAL_PORT                 PORTD
@@ -60,7 +56,6 @@
 #define SERIAL_TX                   PD1
 
 // PPM generation
-#define PPM_TIMERA                  TCCR1A
 #define PPM_PORT                    PORTB
 #define PPM_DDR                     DDRB
 

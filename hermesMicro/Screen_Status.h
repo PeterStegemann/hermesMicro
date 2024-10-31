@@ -7,8 +7,14 @@
 class Screen_Status : public Screen_Base
 {
   public:
-    Screen_Status( Display_Service* DisplayService, Input_Service* InputService, Store_Processor* StoreProcessor)
-      : Screen_Base( DisplayService, InputService, StoreProcessor)
+    Screen_Status
+    (
+      Display_Service* DisplayService,
+      Input_Service* InputService,
+      Interrupt_Service* InterruptService,
+      Store_Processor* StoreProcessor
+    )
+      : Screen_Base( DisplayService, InputService, InterruptService, StoreProcessor)
     {
     }
 

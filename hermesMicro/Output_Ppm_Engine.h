@@ -113,12 +113,12 @@ class Output_Ppm_Engine
         if( inverted)
         {
           // Switch to 0 after this one.
-          PPM_TIMERA = BIT_VALUE( COM1A1);
+          TCCR1A = Utility_BitValue( COM1A1);
         }
         else
         {
           // Switch to 1 after this one.
-          PPM_TIMERA = BIT_VALUE( COM1A1) | BIT_VALUE( COM1A0);
+          TCCR1A = Utility_BitValue( COM1A1) | Utility_BitValue( COM1A0);
         }
 
         signalState = 0;
@@ -141,12 +141,12 @@ class Output_Ppm_Engine
         if( inverted == true)
         {
           // Switch to 1 after this one.
-          PPM_TIMERA = BIT_VALUE( COM1A1) | BIT_VALUE( COM1A0);
+          TCCR1A = Utility_BitValue( COM1A1) | Utility_BitValue( COM1A0);
         }
         else
         {
           // Switch to 0 after this one.
-          PPM_TIMERA = BIT_VALUE( COM1A1);
+          TCCR1A = Utility_BitValue( COM1A1);
         }
 
         signalState = 1;
@@ -166,24 +166,24 @@ class Output_Ppm_Engine
       // Set some lead in time before the first match.
       OCR1A = PPM_SIGNAL_FRAME;
       // OCR1A will use PB1 as output, so set it up.
-      PPM_DDR |= BIT_VALUE( PPM_SIGNAL);
+      PPM_DDR |= Utility_BitValue( PPM_SIGNAL);
 
       if( inverted)
       {
         // Switch to 1  when matching.
-        PPM_TIMERA = BIT_VALUE( COM1A1) | BIT_VALUE( COM1A0);
+        TCCR1A = Utility_BitValue( COM1A1) | Utility_BitValue( COM1A0);
       }
       else
       {
         // Switch to 0 when matching.
-        PPM_TIMERA = BIT_VALUE( COM1A1);
+        TCCR1A = Utility_BitValue( COM1A1);
       }
 
       signalState = 1;
       // Clear timer by match and split clock for timer by 8.
-      TCCR1B = BIT_VALUE( WGM12) | BIT_VALUE( CS11);
+      TCCR1B = Utility_BitValue( WGM12) | Utility_BitValue( CS11);
       // Switch interrupt for compare match on.
-      TIMSK1 = BIT_VALUE( OCIE1A);
+      TIMSK1 = Utility_BitValue( OCIE1A);
     }
 
 		// Set PPM inverted/normal.

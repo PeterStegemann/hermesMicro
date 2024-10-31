@@ -6,22 +6,22 @@
 #include "Types.h"
 #include "Utility.h"
 
-#define STATUS_BLINK_OFF            2000
-#define STATUS_BLINK_ON             STATUS_BLINK_OFF + 100
+#define STATUS_BLINK_OFF              2000
+#define STATUS_BLINK_ON               STATUS_BLINK_OFF + 100
 
-#define STATUS_BLINK_OFF_FAST       200
-#define STATUS_BLINK_ON_FAST        STATUS_BLINK_OFF_FAST + 100
+#define STATUS_BLINK_OFF_FAST         200
+#define STATUS_BLINK_ON_FAST          STATUS_BLINK_OFF_FAST + 100
 
-#define STATUS_BLINK_OFF_SUPER_FAST 50
-#define STATUS_BLINK_ON_SUPER_FAST  STATUS_BLINK_OFF_FAST + 25
+#define STATUS_BLINK_OFF_SUPER_FAST   50
+#define STATUS_BLINK_ON_SUPER_FAST    STATUS_BLINK_OFF_FAST + 25
 
-#define STATUS_LONG_BEEP_LENGTH     100
-#define STATUS_BEEP_LENGTH          20
-#define STATUS_TICK_LENGTH          2
+#define STATUS_LONG_BEEP_LENGTH       100
+#define STATUS_BEEP_LENGTH            20
+#define STATUS_TICK_LENGTH            2
 
 #if defined( HAS_STATUS_LED)
-  #define STATUS_LED_OFF( LED)        BIT_CLEAR( STATUS_PORT, LED);
-  #define STATUS_LED_ON( LED)         BIT_SET( STATUS_PORT, LED);
+  #define STATUS_LED_OFF( LED)        Utility_ClearBit( STATUS_PORT, LED);
+  #define STATUS_LED_ON( LED)         Utility_SetBit( STATUS_PORT, LED);
 #endif
 
 class Status_Engine
@@ -55,12 +55,12 @@ class Status_Engine
     void Initialize( void)
     {
       #if defined( HAS_STATUS_LED)
-        BIT_SET( STATUS_DDR, STATUS_LED);
+        Utility_SetBit( STATUS_DDR, STATUS_LED);
         STATUS_LED_OFF( STATUS_LED);
       #endif
 
-      BIT_SET( BUZZER_DDR, BUZZER_NOISE);
-      BIT_CLEAR( BUZZER_PORT, BUZZER_NOISE);
+      Utility_SetBit( BUZZER_DDR, BUZZER_NOISE);
+      Utility_ClearBit( BUZZER_PORT, BUZZER_NOISE);
     }
 
 		// This is for the interrupt, not for you.
@@ -142,7 +142,7 @@ class Status_Engine
 
         if( beepCount == 0)
         {
-          BIT_CLEAR( BUZZER_PORT, BUZZER_NOISE);
+          Utility_ClearBit( BUZZER_PORT, BUZZER_NOISE);
         }
       }
     }
@@ -159,7 +159,7 @@ class Status_Engine
     {
       beepCount = STATUS_LONG_BEEP_LENGTH;
 
-      BIT_SET( BUZZER_PORT, BUZZER_NOISE);
+      Utility_SetBit( BUZZER_PORT, BUZZER_NOISE);
     }
 
 		// Give a beep.
@@ -167,7 +167,7 @@ class Status_Engine
     {
       beepCount = STATUS_BEEP_LENGTH;
       
-      BIT_SET( BUZZER_PORT, BUZZER_NOISE);
+      Utility_SetBit( BUZZER_PORT, BUZZER_NOISE);
     }
 
 		// Give a tick.
@@ -175,6 +175,6 @@ class Status_Engine
     {
       beepCount = STATUS_TICK_LENGTH;
 
-      BIT_SET( BUZZER_PORT, BUZZER_NOISE);
+      Utility_SetBit( BUZZER_PORT, BUZZER_NOISE);
     }
 };

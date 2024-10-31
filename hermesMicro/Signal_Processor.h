@@ -68,7 +68,10 @@ class Signal_Processor
       }
 
       // Activate ADC with Prescaler 128 --> 14Mhz/128 = 115.2kHz
-      ADCSRA = BIT_VALUE( ADEN) | BIT_VALUE( ADPS2) | BIT_VALUE( ADPS1) | BIT_VALUE( ADPS0);
+      ADCSRA = Utility_BitValue( ADEN) | \
+               Utility_BitValue( ADPS2) | \
+               Utility_BitValue( ADPS1) | \
+               Utility_BitValue( ADPS0);
     }
 
 		// This is for the interrupt, not for you.
@@ -100,13 +103,13 @@ class Signal_Processor
       for( uint8_t Index = 0; Index < INPUT_ANALOG_PORTS; Index++)
       {
         // Select pin ADCx using MUX and AVCC.
-        ADMUX = Index | BIT_VALUE( REFS0);
+        ADMUX = Index | Utility_BitValue( REFS0);
 
         // Start conversion
-        ADCSRA |= BIT_VALUE( ADSC);
+        ADCSRA |= Utility_BitValue( ADSC);
 
         // Wait until converstion completed.
-        while( ADCSRA & BIT_VALUE( ADSC));
+        while( ADCSRA & Utility_BitValue( ADSC));
 
         // Get converted value.
         rawValue[ Index] = ADCW;

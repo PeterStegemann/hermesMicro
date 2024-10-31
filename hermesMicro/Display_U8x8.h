@@ -50,13 +50,10 @@ class Display_U8x8
         }
         break;
 
-        default :
-        {
-          return 0;
-        }
+        default : return( 0);
       }
 
-      return 1;
+      return( 1);
     }
 
     static uint8_t Delay( u8x8_t * u8x8, uint8_t Message, uint8_t ArgumentCount, void *Arguments)
@@ -71,12 +68,12 @@ class Display_U8x8
 
         case U8X8_MSG_DELAY_100NANO :       // delay ArgumentCount * 100 nano seconds
         {
-          #define NANOS_PER_CLOCK ( 1000000000UL / F_CPU)
+          #define NANOS_PER_CLOCK     ( 1000000000UL / F_CPU)
           // Approximate best case values...
-          #define CALL_CYCLES     26UL
-          #define CALC_CYCLES      4UL
-          #define RETURN_CYCLES    4UL
-          #define CYCLES_PER_LOOP  4UL
+          #define CALL_CYCLES         26UL
+          #define CALC_CYCLES         4UL
+          #define RETURN_CYCLES       4UL
+          #define CYCLES_PER_LOOP     4UL
 
           uint8_t Cycles  = ( 100UL * ArgumentCount) / ( NANOS_PER_CLOCK * CYCLES_PER_LOOP);
 

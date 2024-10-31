@@ -15,12 +15,20 @@ class Screen_Base
   protected:
     Display_Service* displayService;
     Input_Service* inputService;
+    Interrupt_Service* interruptService;
     Store_Processor* storeProcessor;
 
 	public:
-    Screen_Base( Display_Service* DisplayService, Input_Service* InputService, Store_Processor* StoreProcessor)
+    Screen_Base
+    (
+      Display_Service* DisplayService,
+      Input_Service* InputService,
+      Interrupt_Service* InterruptService,
+      Store_Processor* StoreProcessor
+    )
       : displayService( DisplayService)
       , inputService( InputService)
+      , interruptService( InterruptService)
       , storeProcessor( StoreProcessor)
     {
     }
@@ -29,17 +37,20 @@ class Screen_Base
     {
       u8g2_t* Display = displayService->GetDisplay();
 
-      u8g2_FirstPage( Display);
-
       do
       {
-        draw( Display);
-      }
-      while( u8g2_NextPage( Display));
-
-      while( act() == true)
-      {
+        // This feels a bit alien here, but we need to do this on a regular basis, outside of the
+        // interrupts.
         storeProcessor->Process();
+
+        u8g2_FirstPage( Display);
+
+        do
+        {
+          draw( Display);
+        }
+        while( u8g2_NextPage( Display));
       }
+      while( act() == true);
     }
 };

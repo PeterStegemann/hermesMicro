@@ -18,15 +18,63 @@ class Screen_Status : public Screen_Base
     {
     }
 
-    void draw( u8g2_t* Display)
+    virtual void draw( void)
     {
-        displayService->SetFont( u8g2_font_6x10_tr);
+      // Time
+      displayService->SetLargeFont();
 
-        u8g2_DrawStr( Display, 0, 0, "Status");
+      uint16_t Seconds;
+
+      interruptService->GetTime( NULL, &Seconds);
+
+      displayService->PrintFormat
+      (
+        displayService->GetHorizontalCenter( "00:00"), 0,
+        "%02u:%02u", Seconds / 60, Seconds % 60
+      );
+
+      // Battery
+      displayService->HorizontalFillGauge
+      (
+        Display_Service::GAUGE_SIZE + 3,
+        26,
+        displayService->GetWidth() - 2 * Display_Service::GAUGE_SIZE - 6
+      );
+
+      // Modell name
+      displayService->SetSmallFont();
+      displayService->PrintCentered( 38, "Riser 100");
+
+      // Trimmers
+      uint8_t GaugeLength = 55;
+
+      displayService->VerticalKnobGauge( 0, 0, GaugeLength);
+      displayService->HorizontalKnobGauge
+      (
+        Display_Service::GAUGE_SIZE,
+        displayService->GetHeight() - Display_Service::GAUGE_SIZE - 1,
+        GaugeLength
+      );
+      displayService->HorizontalKnobGauge
+      (
+        displayService->GetWidth() - GaugeLength - Display_Service::GAUGE_SIZE,
+        displayService->GetHeight() - Display_Service::GAUGE_SIZE - 1,
+        GaugeLength
+      );
+      displayService->VerticalKnobGauge
+      (
+        displayService->GetWidth() - Display_Service::GAUGE_SIZE,
+        0,
+        GaugeLength
+      );
     }
 
-    bool act( void)
+    virtual bool act( void)
     {
-      return( false);
+      uint8_t Presses;
+
+      inputService->GetRotary( NULL, &Presses, NULL, NULL);
+
+      return( Presses == 0);
     }
 };

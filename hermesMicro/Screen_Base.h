@@ -8,7 +8,7 @@
 class Screen_Base
 {
   private:
-    virtual void draw( u8g2_t* Display);
+    virtual void draw( void);
     // Return false to exit screen.
     virtual bool act( void);
 
@@ -43,13 +43,13 @@ class Screen_Base
         // interrupts.
         storeProcessor->Process();
 
-        u8g2_FirstPage( Display);
+        displayService->FirstPage();
 
         do
         {
-          draw( Display);
+          draw();
         }
-        while( u8g2_NextPage( Display));
+        while( displayService->NextPage());
       }
       while( act() == true);
     }

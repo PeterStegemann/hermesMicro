@@ -8,7 +8,6 @@ class Screen_Debug : public Screen_Base
 {
   private:
     int16_t rotaryPosition;
-    uint8_t pressCount;
 
   public:
     Screen_Debug
@@ -20,13 +19,12 @@ class Screen_Debug : public Screen_Base
     )
       : Screen_Base( DisplayService, InputService, InterruptService, StoreProcessor)
       , rotaryPosition( 0)
-      , pressCount( 0)
     {
     }
 
-    void draw( u8g2_t* Display)
+    virtual void draw( void)
     {
-      displayService->SetFont( u8g2_font_6x10_tr);
+      displayService->SetMiniFont();
 
       uint8_t Top = 0;
       uint8_t LineHeight = 11;
@@ -58,21 +56,19 @@ class Screen_Debug : public Screen_Base
       );
 
       int8_t Steps;
-      uint8_t Presses;
       bool State;
       uint16_t ButtonTime;
 
-      inputService->GetRotary( &Steps, &Presses, &State, &ButtonTime);
+      inputService->GetRotary( &Steps, NULL, &State, &ButtonTime);
 
       rotaryPosition += Steps;
-      pressCount += Presses;
 
 //      displayService->PrintFormat
 //      (
 //        0, Top += LineHeight, "Rotary: %d %d %s %d",
 //        Steps, Presses, State == true ? "T" : "F", ButtonTime
 //      );
-      displayService->PrintFormat( 0, Top += LineHeight, "Rotary: %d %d", rotaryPosition, pressCount);
+      displayService->PrintFormat( 0, Top += LineHeight, "Rotary: %d", rotaryPosition);
 
       uint8_t RotaryRaw = inputService->GetRawRotary();
 
@@ -86,8 +82,12 @@ class Screen_Debug : public Screen_Base
       );
     }
 
-    bool act( void)
+    virtual bool act( void)
     {
-      return( true);
+      uint8_t Presses;
+
+      inputService->GetRotary( NULL, &Presses, NULL, NULL);
+
+      return( Presses == 0);
     }
 };

@@ -16,10 +16,9 @@
 #define Utility_ClearBit( Value, Bit)		(( Value) &= ~Utility_BitValue( Bit))
 #define Utility_GetBit( Value, Bit)			(( Value) & Utility_BitValue( Bit))
 
-#define NUMBER_MAX( A, B)           ((( A) >= ( B)) ? ( A) : ( B))
-#define NUMBER_MIN( A, B)           ((( A) <= ( B)) ? ( A) : ( B))
-
-#define NUMBER_ABS( Value)          (( Value < 0) ? -( Value) : ( Value))
+#define Utility_Max( A, B)              ((( A) >= ( B)) ? ( A) : ( B))
+#define Utility_Min( A, B)              ((( A) <= ( B)) ? ( A) : ( B))
+#define Utility_Abs( Value)             (( Value < 0) ? -( Value) : ( Value))
 
 class Utility
 {
@@ -93,9 +92,6 @@ void Utility::PrintByteBits( LCD* UseLCD, uint16_t Left, uint16_t Bottom, const 
 }
 */
 };
-
-//void* operator new( size_t Size); 
-//void operator delete( void* Buffer); 
 
 void* operator new( size_t Size)
 {

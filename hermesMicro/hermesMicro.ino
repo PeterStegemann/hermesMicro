@@ -228,8 +228,8 @@ class HermesMicro
       // Loop forever.
       while( true)
       {
+        doStatus();
         doDebug();
-//        doStatus();
 //        doMenu();
 
         /*

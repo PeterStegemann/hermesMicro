@@ -20,11 +20,8 @@ class Screen_Menu : public Screen_Base
 
     virtual void draw( void)
     {
-        displayService->SetMediumFont();
-        displayService->Print( 0, 0, "Zeile 1");
-        displayService->Print( 0, 16, "Zeile 2");
-        displayService->Print( 0, 32, "Zeile 3");
-        displayService->Print( 0, 48, "Zeile 4");
+        displayService->SetSmallFont();
+        displayService->Print( 0, 0, "Menu");
     }
 
     bool act( void)

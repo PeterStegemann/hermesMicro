@@ -7,9 +7,9 @@
 #include "Types.h"
 #include "Utility.h"
 
-#define INPUT_BUTTONS               INPUT_DIGITAL_PORTS
+#define INPUT_SWITCHES              INPUT_DIGITAL_PORTS
 
-#define INPUT_BUTTON_PINS		        ( \
+#define INPUT_SWITCH_PINS		        ( \
                                       Utility_BitValue( INPUT_DIGITAL_A) | \
                                       Utility_BitValue( INPUT_DIGITAL_B) | \
                                       Utility_BitValue( INPUT_DIGITAL_C) | \
@@ -28,41 +28,70 @@
 
 class Input_Service
 {
+  public:
+    enum SwitchState
+    {
+      SWITCH_STATE_Up,
+      SWITCH_STATE_None,
+      SWITCH_STATE_Down
+    };
+
 	private:
-		bool buttonState[ INPUT_BUTTONS];
-		volatile uint8_t buttonCycles[ INPUT_BUTTONS];
+		volatile SwitchState switchStates[ INPUT_SWITCHES];
+		volatile uint8_t switchUpToggles[ INPUT_SWITCHES];
+		volatile uint8_t switchDownToggles[ INPUT_SWITCHES];
 
   	Input_Rotary rotary;
   	volatile int8_t rotarySteps;
 
-  	bool lastRotaryState;
-	  volatile uint8_t rotaryPresses;
-  	volatile uint16_t rotaryButtonTime;
+  	bool lastMenuButtonState;
+	  volatile uint8_t menuButtonPresses;
+  	volatile uint16_t menuButtonTime;
 
     void processButtons( void)
     {
-      // Go trough buttons.
-      uint8_t ButtonId = 0;
-      uint8_t Input = INPUT_DIGITAL_PIN;
+      // Pull down.
+      INPUT_DIGITAL_PORT &= ~INPUT_SWITCH_PINS;
+      uint8_t SwitchStatesDown = INPUT_DIGITAL_PIN;
 
-      for( uint8_t InputId = INPUT_DIGITAL_A; InputId <= INPUT_DIGITAL_H; InputId++)
+      // Pull up.
+      INPUT_DIGITAL_PORT |= INPUT_SWITCH_PINS;
+      uint8_t SwitchStatesUp = INPUT_DIGITAL_PIN;
+
+      // Go trough switches.
+      for( uint8_t SwitchId = 0; SwitchId <= INPUT_SWITCHES; SwitchId++)
       {
-        bool ButtonPressed = ( Utility_GetBit( Input, InputId) == false);
+        // Get current state.
+        SwitchState NewSwitchState;
 
-        // React on state change.
-        if( ButtonPressed != buttonState[ ButtonId])
+        if( Utility_GetBit( SwitchStatesDown, SwitchId))
         {
-          if( ButtonPressed == false)
-          {
-            // React on button beeing released;
-            buttonCycles[ ButtonId]++;
-          }
-
-          // Remember last state.
-          buttonState[ ButtonId] = ButtonPressed;
+          NewSwitchState = SWITCH_STATE_Up;
+        }
+        else if( Utility_GetBit( SwitchStatesUp, SwitchId))
+        {
+          NewSwitchState = SWITCH_STATE_Down;
+        }
+        else
+        {
+          NewSwitchState = SWITCH_STATE_None;
         }
 
-        ButtonId++;
+        // React on state change.
+        if( NewSwitchState != switchStates[ SwitchId])
+        {
+          if( switchStates[ SwitchId] == SWITCH_STATE_Up)
+          {
+            switchUpToggles[ SwitchId]++;
+          }
+          else if( switchStates[ SwitchId] == SWITCH_STATE_Down)
+          {
+            switchDownToggles[ SwitchId]++;
+          }
+
+          // Remember current state.
+          switchStates[ SwitchId] = NewSwitchState;
+        }
       }
     }
 
@@ -78,55 +107,58 @@ class Input_Service
       rotarySteps += RotaryDifference;
 
       // Rotary button
-      bool RotaryButtonPressed = ( Utility_GetBit( RotaryInput, MENU_ROTARY_BUTTON) == 0);
+      bool MenuButtonPressed = ( Utility_GetBit( RotaryInput, MENU_ROTARY_BUTTON) == 0);
 
-      if( RotaryButtonPressed == true)
+      if( MenuButtonPressed == true)
       {
-        rotaryButtonTime++;
+        menuButtonTime++;
       }
 
       // React on state change.
-      if( RotaryButtonPressed != lastRotaryState)
+      if( MenuButtonPressed != lastMenuButtonState)
       {
-        if( RotaryButtonPressed == false)
+        if( MenuButtonPressed == false)
         {
           // React on button being released;
-          rotaryPresses++;
+          menuButtonPresses++;
         }
         else
         {
           // Start time count anew.
-          rotaryButtonTime = 0;
+          menuButtonTime = 0;
         }
 
         // Remind last state.
-        lastRotaryState = RotaryButtonPressed;
+        lastMenuButtonState = MenuButtonPressed;
       }
     }
 
 	public:
     Input_Service( void)
       : rotarySteps( 0)
-      , lastRotaryState( false)
-	    , rotaryPresses( 0)
-      , rotaryButtonTime( 0)
+      , lastMenuButtonState( false)
+	    , menuButtonPresses( 0)
+      , menuButtonTime( 0)
     {
     }
 
 		void Initialize( void)
     {
-      for( uint8_t Count = 0; Count < INPUT_BUTTONS; Count++)
+      for( uint8_t SwitchId = 0; SwitchId < INPUT_SWITCHES; SwitchId++)
       {
-        buttonState[ Count] = false;
-        buttonCycles[ Count] = 0;
+        switchStates[ SwitchId] = SWITCH_STATE_None;
+        switchUpToggles[ SwitchId] = 0;
+        switchDownToggles[ SwitchId] = 0;
       }
 
       // Input.
-      INPUT_DIGITAL_DDR &= ~INPUT_BUTTON_PINS;
+      INPUT_DIGITAL_DDR &= ~INPUT_SWITCH_PINS;
       MENU_ROTARY_DDR &= ~MENU_ROTARY_PINS;
 
+      // No pullups.
+      INPUT_DIGITAL_PORT &= ~INPUT_SWITCH_PINS;
+
       // Pullups.
-      INPUT_DIGITAL_PORT |= INPUT_BUTTON_PINS;
       MENU_ROTARY_PORT |= MENU_ROTARY_PINS;
     }
 
@@ -137,73 +169,83 @@ class Input_Service
       processRotary();
     }
 
-		// Get current value of the button.
-    //
-		// Cycles   press & release cycles since last call
-		// State    current button state
-		void GetButton( uint8_t ButtonId, uint8_t* Cycles = NULL, bool* State = NULL)
+    SwitchState GetSwitchState( uint8_t SwitchId)
     {
-      if( Cycles != NULL)
+      if( SwitchId >= INPUT_SWITCHES)
       {
-        *Cycles = buttonCycles[ ButtonId];
-        buttonCycles[ ButtonId] = 0;
+        return( SWITCH_STATE_None);
       }
 
-      if( State != NULL)
-      {
-        *State = buttonState[ ButtonId];
-      }
+      return( switchStates[ SwitchId]);
     }
 
-    // Get current value of the rotary.
-    //
-    // Steps          steps since last call
-    // Presses        press & release cycles since last call
-    // State          current button state
-    // ButtonTime     last button press duration in milliseconds
-    void GetRotary( int8_t* Steps = NULL, uint8_t* Presses = NULL, bool* State = NULL,
-                    uint16_t* ButtonTime = NULL)
+    // Get switch up toggles since last call.
+    uint8_t GetSwitchUpToggles( uint8_t SwitchId)
     {
-      if( Steps != NULL)
+      if( SwitchId >= INPUT_SWITCHES)
       {
-        *Steps = rotarySteps;
-        rotarySteps = 0;
-
-        /*
-        if( rotarySteps != 0)
-        {
-          GLOBAL.StatusService.Tick();
-        }
-        */
+        return( 0);
       }
 
+      uint8_t SwitchToggles = switchUpToggles[ SwitchId];
+      switchUpToggles[ SwitchId] = 0;
+
+      return( SwitchToggles);
+    }
+
+    // Get switch down toggles since last call.
+    uint8_t GetSwitchDownToggles( uint8_t SwitchId)
+    {
+      if( SwitchId >= INPUT_SWITCHES)
+      {
+        return( 0);
+      }
+
+      uint8_t SwitchToggles = switchDownToggles[ SwitchId];
+      switchDownToggles[ SwitchId] = 0;
+
+      return( SwitchToggles);
+    }
+
+    // Get menu steps since last call.
+    int8_t GetMenuSteps( void)
+    {
+      int8_t Steps = rotarySteps;
+      rotarySteps = 0;
+
+      return( Steps);
+    }
+
+    // Get press & release cycles since last call.
+    uint8_t GetMenuPresses( void)
+    {
+      uint8_t Presses = menuButtonPresses;
+      menuButtonPresses = 0;
+
+      return( Presses);
+    }
+
+    // Get current value of the menu button.
+    //
+    // Presses  press & release cycles since last call
+    // State    current button state
+    // Time     last button press duration in milliseconds
+    void GetMenuButton( uint8_t* Presses = NULL, bool* State = NULL, uint16_t* Time = NULL)
+    {
       if( Presses != NULL)
       {
-        *Presses = rotaryPresses;
-        rotaryPresses = 0;
-
-        /*
-        if( rotaryPresses != 0)
-        {
-          GLOBAL.StatusService.Beep();
-        }
-        */
+        *Presses = GetMenuPresses();
       }
 
       if( State != NULL)
       {
-        *State = lastRotaryState;
+        *State = lastMenuButtonState;
       }
 
-      if( ButtonTime != NULL)
+      if( Time != NULL)
       {
-        *ButtonTime = rotaryButtonTime;
+        *Time = menuButtonTime;
       }
-    }
-
-    uint8_t GetRawInput( void)
-    {
-      return( INPUT_DIGITAL_PIN & INPUT_BUTTON_PINS);
     }
 
     uint8_t GetRawRotary( void)

@@ -26,11 +26,19 @@ class Display_Service
 	public:
     Initialize( void)
     {
-//      u8g2_Setup_sh1107_i2c_64x128_1
+/*
+      u8g2_Setup_sh1107_i2c_64x128_1
+      (
+        &display,
+        U8G2_R1,
+        Display_U8x8::Talk,
+        Display_U8x8::Delay
+      );
+*/
       u8g2_Setup_sh1106_i2c_128x64_noname_1
       (
         &display,
-        U8G2_R2,
+        U8G2_R0,
         Display_U8x8::Talk,
         Display_U8x8::Delay
       );
@@ -133,23 +141,21 @@ class Display_Service
       Print( Left, Top, String);
     }
 
-    void HorizontalFillGauge( uint8_t Left, uint8_t Top, uint8_t Size)
+    void HorizontalFillGauge( uint8_t Left, uint8_t Top, uint8_t Size, uint8_t Value)
     {
-      uint8_t Value = 35;
-
       u8g2_DrawBox( &display, Left, Top, Value, GAUGE_SIZE);
       u8g2_DrawFrame( &display, Left + Value, Top, Size - Value, GAUGE_SIZE);
     }
 
-    void HorizontalKnobGauge( uint8_t Left, uint8_t Top, uint8_t Size)
+    void HorizontalKnobGauge( uint8_t Left, uint8_t Top, uint8_t Size, uint8_t Value)
     {
       u8g2_DrawRFrame( &display, Left, Top + 1, Size, GAUGE_SIZE - 2, 1);
-      u8g2_DrawBox( &display, Left + Size / 2 - 2, Top, 4, GAUGE_SIZE);
+      u8g2_DrawBox( &display, Left + Value - 2, Top, 4, GAUGE_SIZE);
     }
 
-    void VerticalKnobGauge( uint8_t Left, uint8_t Top, uint8_t Size)
+    void VerticalKnobGauge( uint8_t Left, uint8_t Top, uint8_t Size, uint8_t Value)
     {
       u8g2_DrawRFrame( &display, Left + 1, Top, GAUGE_SIZE - 2, Size, 1);
-      u8g2_DrawBox( &display, Left, Top + Size / 2 - 2, GAUGE_SIZE, 4);
+      u8g2_DrawBox( &display, Left, Top + Value - 2, GAUGE_SIZE, 4);
     }
 };

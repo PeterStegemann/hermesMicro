@@ -2,9 +2,11 @@
 
 #pragma once
 
-#define NO_TRIM
+//#define NO_TRIM
 //#define OUTPUT_SPEKTRUM
 #define OUTPUT_PPM
+
+#define SIGNAL_PROCESSOR_CHANNELS     15
 
 //#define HAS_STATUS_LED
 

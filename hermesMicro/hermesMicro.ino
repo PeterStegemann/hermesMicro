@@ -32,7 +32,14 @@ class HermesMicro
 
     void doDebug( void)
     {
-        Screen_Debug ScreenDebug( &displayService, &inputService, &interruptService, &storeProcessor);
+        Screen_Debug ScreenDebug
+        (
+          &displayService,
+          &inputService,
+          &interruptService,
+          &signalProcessor,
+          &storeProcessor
+        );
         ScreenDebug.Run();
     }
 
@@ -44,7 +51,10 @@ class HermesMicro
 
     void doStatus( void)
     {
-        Screen_Status ScreenStatus( &displayService, &inputService, &interruptService, &storeProcessor);
+        Screen_Status ScreenStatus
+        (
+          &displayService, &inputService, &interruptService, &signalProcessor, &storeProcessor
+        );
         ScreenStatus.Run();
     }
 /*
@@ -178,6 +188,8 @@ class HermesMicro
     {
       // Initialize display.
       displayService.Initialize();
+
+      setupService.Reset();
 
       // Initialize input.
       inputService.Initialize();

@@ -11,7 +11,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#define PPM_CHANNELS          8
 #define PPM_SIGNALS           PPM_CHANNELS + 1
 
 // We're using the /8 clock divider.
@@ -39,12 +38,12 @@ class Output_Ppm_Engine
 		// Operate in inverted mode?
 		volatile bool inverted;
 
-		// This array holds all channel values that have to be transformed and copied into the
-		// signals array.
+		// This array holds all channel values that have to be transformed and copied into the signals
+		// array.
 		volatile uint16_t channels[ PPM_CHANNELS];
-		// This has to be set to true when the channels are ready to be used by the interrupt
-		// routine. When the routine is done with the data, it sets the flag back to false, so new
-		// values can be set.
+		// This has to be set to true when the channels are ready to be used by the interrupt routine.
+    // When the routine is done with the data, it sets the flag back to false, so new values can
+    // be set.
 		volatile bool channelsValid;
 		// This array holds all signals that are sent out. First is the start signal.
 		uint16_t signals[ PPM_SIGNALS];
@@ -192,8 +191,8 @@ class Output_Ppm_Engine
       inverted = Inverted;
     }
 
-		// Set a specific channel to a new value. This one waits until the sending routine has
-		// copied the last value set.
+		// Set a specific channel to a new value. This one waits until the sending routine has copied
+    // the last value set.
 		void SetChannel( uint8_t ChannelId, int16_t Value)
     {
       if( ChannelId >= PPM_CHANNELS)

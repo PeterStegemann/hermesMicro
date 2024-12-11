@@ -13,9 +13,9 @@ class Signal_Calibration
 	public:
 		Signal_Calibration( void)
     {
-      Setup.High = 0;
-      Setup.Center = 0;
-      Setup.Low = 0;
+      Setup.High = SIGNAL_CALIBRATION_MAXIMUM_VALUE;
+      Setup.Center = SIGNAL_CALIBRATION_NEUTRAL_VALUE;
+      Setup.Low = SIGNAL_CALIBRATION_MINIMUM_VALUE;
     }
 
 		int16_t Calibrate( int16_t Value)

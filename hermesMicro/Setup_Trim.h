@@ -6,7 +6,5 @@
 
 struct Setup_Trim
 {
-	int8_t Bottom, Center, Top;
-
-	bool Reverse;
+	int8_t Center;
 };

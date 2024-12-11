@@ -5,8 +5,8 @@
 #include "Input_Service.h"
 #include "Setup_Service.h"
 #include "Setup_Trim.h"
+#include "Signal_Defines_Trim.h"
 #include "Status_Engine.h"
-#include "Signal_Trim_Defines.h"
 
 class Signal_Trim
 {
@@ -34,9 +34,7 @@ class Signal_Trim
 
 		void Reset( void)
     {
-      Setup.Bottom = SIGNAL_TRIM_MINIMUM_VALUE;
       Setup.Center = SIGNAL_TRIM_NEUTRAL_VALUE;
-      Setup.Top = SIGNAL_TRIM_MAXIMUM_VALUE;
 
       modified = false;
     }
@@ -48,10 +46,8 @@ class Signal_Trim
       return;
       #endif
 
-      uint8_t DownCycles, UpCycles;
-
-      inputService->GetButton( Id * 2, &DownCycles);
-      inputService->GetButton( Id * 2 + 1, &UpCycles);
+      uint8_t UpCycles = inputService->GetSwitchUpToggles( Id);
+      uint8_t DownCycles = inputService->GetSwitchDownToggles( Id);
 
       int8_t Steps = UpCycles - DownCycles;
 
@@ -101,14 +97,6 @@ class Signal_Trim
       }
     }
 
-		void SetLimit( int8_t Limit)
-    {
-      Setup.Bottom = -Limit;
-      Setup.Top = Limit;
-
-      modified = true;
-    }
-
 		int16_t Trim( int16_t Value)
     {
       // Move value into positive realm.
@@ -123,26 +111,21 @@ class Signal_Trim
       // Lower half.
       if( Value < 0)
       {
-        Lower = Setup.Bottom;
+        Lower = SIGNAL_MINIMUM_VALUE;
         Higher = Setup.Center;
       }
       // Upper half.
       else if( Value < SIGNAL_MAXIMUM_VALUE)
       {
         Lower = Setup.Center;
-        Higher = Setup.Top;
+        Higher = SIGNAL_MAXIMUM_VALUE;
       }
       // Top point.
       else
       {
-        int32_t Result = Setup.Top;
+        int32_t Result = SIGNAL_MAXIMUM_VALUE;
         Result *= SIGNAL_VALUE_RANGE;
         Result /= SIGNAL_TRIM_VALUE_RANGE;
-
-        if( Setup.Reverse)
-        {
-          Result = -Result;
-        }
 
         return( Result);
       }
@@ -161,11 +144,6 @@ class Signal_Trim
       Full /= Width;
 
       int16_t Result = Lower + Full;
-
-      if( Setup.Reverse)
-      {
-        Result = -Result;
-      }
 
       return( Result);
     }

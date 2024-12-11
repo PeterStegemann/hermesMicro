@@ -9,7 +9,6 @@
 
 #include <avr/io.h>
 
-#define SPEKTRUM_CHANNELS           6
 #define SPEKTRUM_CHANNEL_BYTES      2
 
 #define SPEKTRUM_SIGNAL_NEUTRAL     0x0200
@@ -164,24 +163,14 @@ class Output_Spektrum_Engine
       ( 1 << UCSZ01) | ( 1 << UCSZ00);
     }
 
-		// Set a specific channel to a new value. This one waits until the sending routine has
-		// copied the last value set.
+		// Set a specific channel to a new value. This one waits until the sending routine has copied
+		// the last value set.
 		void SetChannel( uint8_t ChannelId, int16_t Value)
     {
       if( ChannelId >= SPEKTRUM_CHANNELS)
       {
         // Invalid channel!
         return;
-      }
-
-      // Clip to valid values.
-      if( Value > SIGNAL_MAXIMUM_VALUE)
-      {
-        Value = SIGNAL_MAXIMUM_VALUE;
-      }
-      else if( Value < SIGNAL_MINIMUM_VALUE)
-      {
-        Value = SIGNAL_MINIMUM_VALUE;
       }
 
       int32_t SignalValue = Value;
